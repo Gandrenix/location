@@ -1,0 +1,1333 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATMOSPHERIC SENSING PROTOCOL // RETROFUTURIST HUD</title>
+    <!-- Google Fonts: Orbitron, Share Tech Mono, Rajdhani -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@500;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --neon-pink: #ff007f;
+            --neon-cyan: #00f5ff;
+            --neon-purple: #a800ff;
+            --neon-yellow: #ffe600;
+            --dark-bg: #090514;
+            --card-bg: rgba(18, 10, 36, 0.82);
+            --card-border: rgba(0, 245, 255, 0.4);
+            --text-glow-cyan: 0 0 10px rgba(0, 245, 255, 0.7);
+            --text-glow-pink: 0 0 10px rgba(255, 0, 127, 0.7);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: #ffffff;
+            font-family: 'Share Tech Mono', monospace;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            overflow-x: hidden;
+            position: relative;
+            padding-bottom: 40px;
+        }
+
+        /* Scanlines CRT effect */
+        .crt-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(
+                rgba(18, 16, 16, 0) 50%, 
+                rgba(0, 0, 0, 0.35) 50%
+            ), linear-gradient(
+                90deg,
+                rgba(255, 0, 0, 0.03),
+                rgba(0, 255, 0, 0.01),
+                rgba(0, 0, 255, 0.03)
+            );
+            background-size: 100% 3px, 6px 100%;
+            pointer-events: none;
+            z-index: 99;
+            opacity: 0.7;
+        }
+
+        /* Rejilla 3D Synthwave Grid & Sun */
+        .sky-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+            background: radial-gradient(circle at 50% 30%, #300448 0%, #120324 60%, #05010a 100%);
+        }
+
+        /* Sol Synthwave Neon */
+        .synth-sun {
+            position: absolute;
+            top: 15%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            background: linear-gradient(to bottom, #ffe600 0%, #ff007f 80%);
+            box-shadow: 0 0 40px #ff007f, 0 0 80px #ffe600;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        /* Líneas horizontales del sol */
+        .synth-sun::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                transparent,
+                transparent 6px,
+                #090514 6px,
+                #090514 10px
+            );
+        }
+
+        /* Horizon Grid 3D Plane */
+        .grid-plane {
+            position: absolute;
+            width: 300%;
+            height: 200%;
+            bottom: -50%;
+            left: -100%;
+            background-image: 
+                linear-gradient(to right, rgba(0, 245, 255, 0.3) 2px, transparent 2px),
+                linear-gradient(to bottom, rgba(255, 0, 127, 0.3) 2px, transparent 2px);
+            background-size: 60px 60px;
+            transform: perspective(400px) rotateX(75deg);
+            animation: gridMove 8s linear infinite;
+            z-index: 2;
+        }
+
+        @keyframes gridMove {
+            0% { transform: perspective(400px) rotateX(75deg) translateY(0); }
+            100% { transform: perspective(400px) rotateX(75deg) translateY(60px); }
+        }
+
+        .vignette-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, transparent 50%, rgba(5, 2, 12, 0.85) 95%);
+            z-index: 3;
+            pointer-events: none;
+        }
+
+        /* App Main Container */
+        .app-wrapper {
+            position: relative;
+            z-index: 10;
+            width: 92%;
+            max-width: 900px;
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Header Header HUD */
+        .hud-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--neon-cyan);
+            padding-bottom: 12px;
+            box-shadow: 0 4px 15px rgba(0, 245, 255, 0.2);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .brand-title {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            font-size: 1.5rem;
+            letter-spacing: 3px;
+            color: #ffffff;
+            text-shadow: var(--text-glow-cyan), 0 0 20px var(--neon-cyan);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-title span {
+            color: var(--neon-pink);
+            text-shadow: var(--text-glow-pink);
+        }
+
+        .system-status-badge {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--neon-yellow);
+            border: 1px solid var(--neon-yellow);
+            padding: 4px 10px;
+            background: rgba(255, 230, 0, 0.1);
+            letter-spacing: 2px;
+            box-shadow: 0 0 8px rgba(255, 230, 0, 0.3);
+            border-radius: 2px;
+        }
+
+        /* Audio Deck / Synth Deck UI */
+        .audio-deck {
+            background: rgba(12, 6, 26, 0.9);
+            border: 1px solid var(--neon-purple);
+            border-left: 4px solid var(--neon-pink);
+            padding: 12px 18px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            box-shadow: 0 0 15px rgba(168, 0, 255, 0.3);
+            flex-wrap: wrap;
+        }
+
+        .audio-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .cassette-icon {
+            font-size: 1.5rem;
+            animation: spinCassette 4s linear infinite paused;
+            display: inline-block;
+        }
+
+        .audio-deck.playing .cassette-icon {
+            animation-play-state: running;
+        }
+
+        @keyframes spinCassette {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .track-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .track-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.85rem;
+            color: var(--neon-cyan);
+            letter-spacing: 1px;
+        }
+
+        .track-artist {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .audio-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-synth {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #ffffff;
+            background: transparent;
+            border: 1px solid var(--neon-cyan);
+            padding: 8px 16px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            box-shadow: inset 0 0 8px rgba(0, 245, 255, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-synth:hover {
+            background: var(--neon-cyan);
+            color: #000000;
+            box-shadow: 0 0 15px var(--neon-cyan);
+        }
+
+        .btn-synth:active {
+            transform: scale(0.95);
+        }
+
+        .btn-pink {
+            border-color: var(--neon-pink);
+            box-shadow: inset 0 0 8px rgba(255, 0, 127, 0.2);
+        }
+
+        .btn-pink:hover {
+            background: var(--neon-pink);
+            color: #ffffff;
+            box-shadow: 0 0 15px var(--neon-pink);
+        }
+
+        /* Visualizer Canvas */
+        #audioVisualizer {
+            width: 140px;
+            height: 35px;
+            background: #04020a;
+            border: 1px solid rgba(0, 245, 255, 0.3);
+            border-radius: 3px;
+        }
+
+        /* Search & Geolocation Control Panel */
+        .control-panel {
+            display: flex;
+            gap: 12px;
+            width: 100%;
+            flex-wrap: wrap;
+        }
+
+        .search-box-wrapper {
+            position: relative;
+            flex: 1;
+            min-width: 260px;
+        }
+
+        .cyber-input {
+            width: 100%;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1rem;
+            padding: 14px 18px;
+            background: rgba(10, 5, 22, 0.9);
+            border: 1px solid var(--card-border);
+            color: #ffffff;
+            border-radius: 4px;
+            outline: none;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8), 0 0 10px rgba(0, 245, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .cyber-input:focus {
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 15px rgba(0, 245, 255, 0.5), inset 0 0 10px rgba(0, 245, 255, 0.2);
+        }
+
+        .search-results-dropdown {
+            position: absolute;
+            top: 105%;
+            left: 0;
+            width: 100%;
+            background: rgba(10, 5, 25, 0.96);
+            border: 1px solid var(--neon-cyan);
+            border-radius: 4px;
+            z-index: 50;
+            max-height: 220px;
+            overflow-y: auto;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.9);
+            display: none;
+        }
+
+        .dropdown-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            border-bottom: 1px dashed rgba(0, 245, 255, 0.2);
+            font-size: 0.9rem;
+            display: flex;
+            justify-content: space-between;
+            transition: background 0.2s ease;
+        }
+
+        .dropdown-item:hover {
+            background: rgba(0, 245, 255, 0.2);
+            color: var(--neon-yellow);
+        }
+
+        .btn-geo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            padding: 14px 28px;
+            background: linear-gradient(135deg, rgba(255, 0, 127, 0.2) 0%, rgba(168, 0, 255, 0.4) 100%);
+            border: 2px solid var(--neon-pink);
+            color: #ffffff;
+            border-radius: 4px;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(255, 0, 127, 0.4);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .btn-geo:hover {
+            background: var(--neon-pink);
+            box-shadow: 0 0 25px var(--neon-pink);
+            color: #000;
+        }
+
+        /* Weather Main Telemetry Card */
+        .hud-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 0 25px rgba(0, 0, 0, 0.8), inset 0 0 15px rgba(0, 245, 255, 0.08);
+            backdrop-filter: blur(12px);
+            position: relative;
+            min-height: 280px;
+        }
+
+        .hud-card::before {
+            content: "TELEMETRY PROTOCOL // METEO SENSORS";
+            position: absolute;
+            top: -10px;
+            left: 20px;
+            background: var(--dark-bg);
+            padding: 2px 10px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7rem;
+            color: var(--neon-cyan);
+            letter-spacing: 2px;
+            border: 1px solid var(--neon-cyan);
+            border-radius: 2px;
+        }
+
+        .location-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .city-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            font-weight: 900;
+            color: #ffffff;
+            text-shadow: var(--text-glow-cyan);
+            letter-spacing: 2px;
+            line-height: 1.1;
+        }
+
+        .geo-coords {
+            font-size: 0.85rem;
+            color: var(--neon-cyan);
+            letter-spacing: 1px;
+            margin-top: 4px;
+        }
+
+        .temp-display-group {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+
+        .weather-icon-large {
+            font-size: 4.5rem;
+            line-height: 1;
+            filter: drop-shadow(0 0 15px var(--neon-pink));
+        }
+
+        .big-temp {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 4rem;
+            font-weight: 900;
+            color: #ffffff;
+            text-shadow: 0 0 20px var(--neon-pink);
+            line-height: 1;
+        }
+
+        .unit-toggle {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.6);
+            cursor: pointer;
+            margin-left: -15px;
+        }
+
+        .unit-toggle.active {
+            color: var(--neon-yellow);
+            font-weight: bold;
+            text-shadow: 0 0 8px var(--neon-yellow);
+        }
+
+        .weather-status-tag {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--neon-yellow);
+            text-shadow: 0 0 10px var(--neon-yellow);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* Data Grid Metrics */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-top: 25px;
+            border-top: 1px solid rgba(0, 245, 255, 0.2);
+            padding-top: 20px;
+        }
+
+        .metric-box {
+            background: rgba(8, 4, 18, 0.6);
+            border: 1px solid rgba(168, 0, 255, 0.3);
+            border-left: 3px solid var(--neon-cyan);
+            padding: 12px;
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .metric-box:hover {
+            transform: translateY(-3px);
+            border-color: var(--neon-pink);
+        }
+
+        .metric-label {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.65);
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .metric-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #ffffff;
+            text-shadow: 0 0 8px var(--neon-cyan);
+        }
+
+        /* 24-Hour Forecast Bar */
+        .section-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            color: var(--neon-pink);
+            text-shadow: var(--text-glow-pink);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .hourly-scroll {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--neon-pink) rgba(10, 5, 22, 0.8);
+        }
+
+        .hourly-card {
+            min-width: 80px;
+            background: rgba(12, 6, 26, 0.75);
+            border: 1px solid rgba(0, 245, 255, 0.3);
+            padding: 12px 8px;
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            text-align: center;
+        }
+
+        .hourly-time {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .hourly-icon {
+            font-size: 1.6rem;
+        }
+
+        .hourly-temp {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.95rem;
+            color: var(--neon-cyan);
+            font-weight: 700;
+        }
+
+        /* 7-Day Forecast Grid */
+        .daily-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+            gap: 12px;
+        }
+
+        .daily-card {
+            background: rgba(12, 6, 26, 0.75);
+            border: 1px solid rgba(168, 0, 255, 0.4);
+            padding: 14px 10px;
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            text-align: center;
+            transition: transform 0.2s ease;
+        }
+
+        .daily-card:hover {
+            transform: scale(1.04);
+            border-color: var(--neon-yellow);
+        }
+
+        .daily-day {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            color: var(--neon-yellow);
+        }
+
+        .daily-icon {
+            font-size: 1.8rem;
+        }
+
+        .daily-temps {
+            font-size: 0.85rem;
+            display: flex;
+            gap: 8px;
+        }
+
+        .temp-max {
+            color: var(--neon-pink);
+            font-weight: bold;
+        }
+
+        .temp-min {
+            color: var(--neon-cyan);
+        }
+
+        /* Radar Loader */
+        .loader-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            padding: 50px 0;
+            color: var(--neon-cyan);
+        }
+
+        .radar-pulse {
+            width: 60px;
+            height: 60px;
+            border: 3px solid var(--neon-cyan);
+            border-radius: 50%;
+            animation: radarPulse 1.2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+            position: relative;
+        }
+
+        .radar-pulse::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 12px;
+            height: 12px;
+            background: var(--neon-pink);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--neon-pink);
+        }
+
+        @keyframes radarPulse {
+            0% { transform: scale(0.4); opacity: 0.9; box-shadow: 0 0 0 0 var(--neon-cyan); }
+            100% { transform: scale(1.6); opacity: 0; box-shadow: 0 0 30px var(--neon-cyan); }
+        }
+
+        .loader-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            letter-spacing: 3px;
+            text-shadow: var(--text-glow-cyan);
+            animation: textFlicker 1.5s infinite alternate;
+        }
+
+        @keyframes textFlicker {
+            0% { opacity: 0.4; }
+            100% { opacity: 1; }
+        }
+
+        .footer-note {
+            text-align: center;
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.4);
+            letter-spacing: 2px;
+            margin-top: 15px;
+        }
+
+        @media (max-width: 600px) {
+            .brand-title { font-size: 1.2rem; }
+            .city-name { font-size: 1.5rem; }
+            .big-temp { font-size: 3rem; }
+            .audio-deck { flex-direction: column; align-items: stretch; }
+            #audioVisualizer { width: 100%; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="crt-overlay"></div>
+
+    <div class="sky-container">
+        <div class="synth-sun"></div>
+        <div class="grid-plane"></div>
+    </div>
+    <div class="vignette-layer"></div>
+
+    <div class="app-wrapper">
+
+        <!-- Header -->
+        <header class="hud-header">
+            <h1 class="brand-title"><span>SYNTH</span>METEO // v2.6</h1>
+            <div class="system-status-badge" id="systemStatus">PROTOCOL: ONLINE</div>
+        </header>
+
+        <!-- Audio Deck / Synthwave Synthesizer Music Player -->
+        <section class="audio-deck" id="audioDeck">
+            <div class="audio-info">
+                <span class="cassette-icon">📻</span>
+                <div class="track-details">
+                    <span class="track-title" id="trackTitle">SYNTHWAVE ANTHEM 84</span>
+                    <span class="track-artist">REALTIME WEB-AUDIO SYNTHESIZER</span>
+                </div>
+            </div>
+
+            <canvas id="audioVisualizer"></canvas>
+
+            <div class="audio-controls">
+                <button class="btn-synth btn-pink" id="playAudioBtn">▶ PLAY MUSIC</button>
+                <button class="btn-synth" id="changeTrackBtn">⏭ NEXT TRACK</button>
+            </div>
+        </section>
+
+        <!-- Controls: Search Input + Geolocation Button -->
+        <section class="control-panel">
+            <div class="search-box-wrapper">
+                <input type="text" id="searchInput" class="cyber-input" placeholder="🔍 SEARCH CITY OR LOCATION..." autocomplete="off">
+                <div class="search-results-dropdown" id="searchResults"></div>
+            </div>
+            <button class="btn-geo" id="geoBtn">📡 GPS TRIANGULATE</button>
+        </section>
+
+        <!-- Main Weather Display Card -->
+        <main class="hud-card" id="weatherDisplay">
+            <div class="loader-wrapper">
+                <div class="radar-pulse"></div>
+                <div class="loader-text">INITIALIZING QUANTUM METEO SENSORS...</div>
+            </div>
+        </main>
+
+        <!-- 24-Hour Forecast Deck -->
+        <section class="hud-card" style="min-height: auto;" id="hourlySection">
+            <div class="section-title">⏱️ 24-HOUR TELEMETRY FORECAST</div>
+            <div class="hourly-scroll" id="hourlyContainer">
+                <div style="color: rgba(255,255,255,0.4); font-size:0.85rem;">[ AWAITING DATA STREAM ]</div>
+            </div>
+        </section>
+
+        <!-- 7-Day Extended Forecast Deck -->
+        <section class="hud-card" style="min-height: auto;" id="dailySection">
+            <div class="section-title">📅 7-DAY ATMOSPHERIC PROJECTION</div>
+            <div class="daily-grid" id="dailyContainer">
+                <div style="color: rgba(255,255,255,0.4); font-size:0.85rem;">[ AWAITING DATA STREAM ]</div>
+            </div>
+        </section>
+
+        <footer class="footer-note">
+            REALTIME DATA STREAM VIA OPEN-METEO API & GEOLOCATION PROTOCOL // RETROFUTURIST HUD SYSTEM
+        </footer>
+
+    </div>
+
+    <script>
+        /* =========================================================================
+           1. WEB AUDIO SYNTHWAVE MUSIC GENERATOR ENGINE
+           ========================================================================= */
+        class SynthwaveAudioEngine {
+            constructor() {
+                this.ctx = null;
+                this.isPlaying = false;
+                this.currentTrack = 0;
+                this.timerId = null;
+                this.step = 0;
+                this.analyser = null;
+                this.dataArray = null;
+
+                this.tracks = [
+                    { name: "CYBER RIDER (OUTRUN 118 BPM)", bpm: 118, bassFreqs: [110, 110, 146.83, 130.81] },
+                    { name: "NEON NIGHTS (CHILL 100 BPM)", bpm: 100, bassFreqs: [98, 110, 130.81, 87.31] },
+                    { name: "GRID RUNNER (PULSE 128 BPM)", bpm: 128, bassFreqs: [130.81, 146.83, 164.81, 110] }
+                ];
+            }
+
+            init() {
+                if (this.ctx) return;
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                this.ctx = new AudioContext();
+
+                this.masterGain = this.ctx.createGain();
+                this.masterGain.gain.value = 0.25; // Safe volume
+
+                this.analyser = this.ctx.createAnalyser();
+                this.analyser.fftSize = 32;
+                this.dataArray = new Uint8Array(this.analyser.frequencyBinCount);
+
+                this.masterGain.connect(this.analyser);
+                this.analyser.connect(this.ctx.destination);
+            }
+
+            togglePlay() {
+                this.init();
+                if (this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+
+                if (this.isPlaying) {
+                    this.stop();
+                } else {
+                    this.start();
+                }
+            }
+
+            start() {
+                this.isPlaying = true;
+                this.step = 0;
+                const bpm = this.tracks[this.currentTrack].bpm;
+                const interval = (60 / bpm / 4) * 1000;
+
+                this.timerId = setInterval(() => this.playStep(), interval);
+            }
+
+            stop() {
+                this.isPlaying = false;
+                if (this.timerId) clearInterval(this.timerId);
+            }
+
+            nextTrack() {
+                const stateWasPlaying = this.isPlaying;
+                this.stop();
+                this.currentTrack = (this.currentTrack + 1) % this.tracks.length;
+                if (stateWasPlaying) {
+                    this.start();
+                }
+            }
+
+            playStep() {
+                if (!this.ctx || !this.isPlaying) return;
+                const track = this.tracks[this.currentTrack];
+                const now = this.ctx.currentTime;
+
+                // 1. Synth Bassline (80s Sawtooth synth bass)
+                if (this.step % 2 === 0) {
+                    const bassIdx = Math.floor((this.step / 8) % track.bassFreqs.length);
+                    const freq = track.bassFreqs[bassIdx] / 2;
+
+                    const osc = this.ctx.createOscillator();
+                    const filter = this.ctx.createBiquadFilter();
+                    const gain = this.ctx.createGain();
+
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(freq, now);
+
+                    filter.type = 'lowpass';
+                    filter.frequency.setValueAtTime(400, now);
+                    filter.frequency.exponentialRampToValueAtTime(100, now + 0.15);
+
+                    gain.gain.setValueAtTime(0.4, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.18);
+
+                    osc.connect(filter);
+                    filter.connect(gain);
+                    gain.connect(this.masterGain);
+
+                    osc.start(now);
+                    osc.stop(now + 0.2);
+                }
+
+                // 2. Synth Arpeggio Chords
+                const arpNotes = [220, 261.63, 329.63, 392.00, 440, 523.25];
+                const noteFreq = arpNotes[this.step % arpNotes.length];
+
+                const arpOsc = this.ctx.createOscillator();
+                const arpGain = this.ctx.createGain();
+
+                arpOsc.type = 'square';
+                arpOsc.frequency.setValueAtTime(noteFreq, now);
+
+                arpGain.gain.setValueAtTime(0.08, now);
+                arpGain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+
+                arpOsc.connect(arpGain);
+                arpGain.connect(this.masterGain);
+
+                arpOsc.start(now);
+                arpOsc.stop(now + 0.14);
+
+                // 3. Retro Cyber Drums (Kick & Snare)
+                if (this.step % 4 === 0) { // Kick
+                    const kickOsc = this.ctx.createOscillator();
+                    const kickGain = this.ctx.createGain();
+                    kickOsc.frequency.setValueAtTime(120, now);
+                    kickOsc.frequency.exponentialRampToValueAtTime(30, now + 0.08);
+
+                    kickGain.gain.setValueAtTime(0.7, now);
+                    kickGain.gain.exponentialRampToValueAtTime(0.01, now + 0.09);
+
+                    kickOsc.connect(kickGain);
+                    kickGain.connect(this.masterGain);
+                    kickOsc.start(now);
+                    kickOsc.stop(now + 0.1);
+                }
+
+                this.step = (this.step + 1) % 64;
+            }
+
+            playBeepSound() {
+                if (!this.ctx) return;
+                try {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(880, this.ctx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(1760, this.ctx.currentTime + 0.08);
+                    gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.08);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start();
+                    osc.stop(this.ctx.currentTime + 0.09);
+                } catch(e){}
+            }
+        }
+
+        const audioEngine = new SynthwaveAudioEngine();
+
+        // Audio Visualizer Canvas Renderer
+        const visualizerCanvas = document.getElementById('audioVisualizer');
+        const vCtx = visualizerCanvas.getContext('2d');
+
+        function renderVisualizer() {
+            requestAnimationFrame(renderVisualizer);
+            vCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
+
+            if (audioEngine.analyser && audioEngine.isPlaying) {
+                audioEngine.analyser.getByteFrequencyData(audioEngine.dataArray);
+                const barWidth = (visualizerCanvas.width / audioEngine.dataArray.length);
+                let x = 0;
+
+                for (let i = 0; i < audioEngine.dataArray.length; i++) {
+                    const barHeight = (audioEngine.dataArray[i] / 255) * visualizerCanvas.height;
+                    vCtx.fillStyle = i % 2 === 0 ? '#00f5ff' : '#ff007f';
+                    vCtx.fillRect(x, visualizerCanvas.height - barHeight, barWidth - 1, barHeight);
+                    x += barWidth;
+                }
+            } else {
+                // Idle static line
+                vCtx.fillStyle = 'rgba(0, 245, 255, 0.3)';
+                vCtx.fillRect(0, visualizerCanvas.height / 2 - 1, visualizerCanvas.width, 2);
+            }
+        }
+        renderVisualizer();
+
+        // Audio UI Handlers
+        const playBtn = document.getElementById('playAudioBtn');
+        const nextBtn = document.getElementById('changeTrackBtn');
+        const audioDeck = document.getElementById('audioDeck');
+        const trackTitle = document.getElementById('trackTitle');
+
+        playBtn.addEventListener('click', () => {
+            audioEngine.togglePlay();
+            if (audioEngine.isPlaying) {
+                playBtn.innerHTML = '⏸ PAUSE MUSIC';
+                audioDeck.classList.add('playing');
+                trackTitle.textContent = audioEngine.tracks[audioEngine.currentTrack].name;
+            } else {
+                playBtn.innerHTML = '▶ PLAY MUSIC';
+                audioDeck.classList.remove('playing');
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            audioEngine.init();
+            audioEngine.playBeepSound();
+            audioEngine.nextTrack();
+            trackTitle.textContent = audioEngine.tracks[audioEngine.currentTrack].name;
+            if (audioEngine.isPlaying) {
+                playBtn.innerHTML = '⏸ PAUSE MUSIC';
+                audioDeck.classList.add('playing');
+            }
+        });
+
+
+        /* =========================================================================
+           2. METEO & GEOLOCATION DATA ENGINE (100% REAL DATA, NO HARDCODED STUB)
+           ========================================================================= */
+
+        let currentUnits = 'C'; // 'C' or 'F'
+        let currentWeatherData = null;
+
+        // Map WMO Weather Codes to Retro Cyber Weather Descriptions & Icons
+        function interpretWMOCode(code, isDay = 1) {
+            const wmoMap = {
+                0: { desc: isDay ? "SOLAR FLARE // CLEAR SKY" : "STALKER NIGHT // CLEAR", icon: isDay ? "☀️" : "🌙" },
+                1: { desc: "FEATHER CLOUDS // MAINLY CLEAR", icon: isDay ? "🌤️" : "🌙" },
+                2: { desc: "PARTIAL CYBER COVER // SCATTERED", icon: "⛅" },
+                3: { desc: "HEAVY OVERCAST // CLOUD MATRIX", icon: "☁️" },
+                45: { desc: "SYNTH FOG // VISIBILITY LOW", icon: "🌫️" },
+                48: { desc: "ICE DEPOSIT FOG // FROZEN MIST", icon: "🌫️" },
+                51: { desc: "LIGHT DRIZZLE // ACID MIST", icon: "🌧️" },
+                53: { desc: "MODERATE DRIZZLE // ACID MIST", icon: "🌧️" },
+                55: { desc: "DENSE DRIZZLE // ACID DROP", icon: "🌧️" },
+                61: { desc: "LIGHT RAIN // NEON DOWNPOUR", icon: "🌧️" },
+                63: { desc: "MODERATE RAIN // NEON DOWNPOUR", icon: "🌧️" },
+                65: { desc: "HEAVY RAIN // HIGH VOLTAGE DRIFT", icon: "🌧️" },
+                71: { desc: "LIGHT SNOW // CRYOGENIC FALL", icon: "❄️" },
+                73: { desc: "MODERATE SNOW // CRYOGENIC FALL", icon: "❄️" },
+                75: { desc: "HEAVY SNOW // BLIZZARD PROTOCOL", icon: "❄️" },
+                80: { desc: "RAIN SHOWERS // TRANSIENT STORM", icon: "🌦️" },
+                81: { desc: "HEAVY RAIN SHOWERS // TORRENTIAL", icon: "🌧️" },
+                95: { desc: "EMP THUNDERSTORM // HIGH VOLTAGE", icon: "⚡" },
+                96: { desc: "THUNDERSTORM WITH HAIL", icon: "⛈️" },
+                99: { desc: "HEAVY HAIL STORM // EXTREME HUD WARNING", icon: "⛈️" }
+            };
+
+            return wmoMap[code] || { desc: "UNKNOWN ATMOSPHERIC STATE", icon: "📡" };
+        }
+
+        // Convert Cardinal Wind Direction
+        function getWindDirection(deg) {
+            const directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+            return directions[Math.round(deg / 45) % 8];
+        }
+
+        // Fetch Weather Data for Lat/Lon
+        async function fetchWeatherData(lat, lon, cityName = null) {
+            const display = document.getElementById('weatherDisplay');
+            const statusBadge = document.getElementById('systemStatus');
+            statusBadge.textContent = "STREAMING METEO DATA...";
+
+            // Show Radar Loader
+            display.innerHTML = `
+                <div class="loader-wrapper">
+                    <div class="radar-pulse"></div>
+                    <div class="loader-text">TRIANGULATING ATMOSPHERIC SENSORS...</div>
+                </div>
+            `;
+
+            try {
+                // High Precision Open-Meteo Query
+                const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,weather_code,surface_pressure,wind_speed_10m,wind_direction_10m,cloud_cover,uv_index&hourly=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,uv_index_max&timezone=auto`;
+
+                const res = await fetch(weatherUrl);
+                if (!res.ok) throw new Error("SENSOR SATELLITE UNREACHABLE");
+
+                const data = await res.json();
+                currentWeatherData = data;
+
+                // Resolve City Name via Reverse Geocoding if not provided
+                if (!cityName) {
+                    cityName = await getCityNameFromCoords(lat, lon);
+                }
+
+                renderWeatherHUD(lat, lon, cityName, data);
+                renderHourlyForecast(data);
+                renderDailyForecast(data);
+
+                statusBadge.textContent = "PROTOCOL: ONLINE";
+            } catch (error) {
+                console.error(error);
+                display.innerHTML = `
+                    <div class="loader-wrapper" style="color: var(--neon-pink);">
+                        <div style="font-size: 2.5rem;">⚠️</div>
+                        <div class="loader-text" style="color: var(--neon-pink);">ATMOSPHERIC FETCH ERROR: ${error.message}</div>
+                    </div>
+                `;
+                statusBadge.textContent = "PROTOCOL: ERROR";
+            }
+        }
+
+        // Reverse Geocoding Helper
+        async function getCityNameFromCoords(lat, lon) {
+            try {
+                const geoUrl = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=es`;
+                const res = await fetch(geoUrl);
+                const data = await res.json();
+                const city = data.city || data.locality || data.principalSubdivision || "UNKNOWN SECTOR";
+                const country = data.countryCode || "";
+                return `${city.toUpperCase()} ${country ? '[' + country + ']' : ''}`;
+            } catch (e) {
+                return `SECTOR [${lat.toFixed(2)}, ${lon.toFixed(2)}]`;
+            }
+        }
+
+        // Render Main HUD Card
+        function renderWeatherHUD(lat, lon, cityName, data) {
+            const current = data.current;
+            const elevation = data.elevation !== undefined ? Math.round(data.elevation) : 0;
+            const weather = interpretWMOCode(current.weather_code, current.is_day);
+
+            const tempC = Math.round(current.temperature_2m);
+            const feelC = Math.round(current.apparent_temperature);
+            const tempValue = currentUnits === 'C' ? tempC : Math.round(tempC * 1.8 + 32);
+            const feelValue = currentUnits === 'C' ? feelC : Math.round(feelC * 1.8 + 32);
+            const unitLabel = `°${currentUnits}`;
+
+            const display = document.getElementById('weatherDisplay');
+            display.innerHTML = `
+                <div class="location-header">
+                    <div>
+                        <div class="city-name">${cityName}</div>
+                        <div class="geo-coords">LAT: ${lat.toFixed(4)}° | LON: ${lon.toFixed(4)}° | ELEVATION: ${elevation} M</div>
+                    </div>
+                    <div class="weather-status-tag">[ ${weather.desc} ]</div>
+                </div>
+
+                <div class="temp-display-group">
+                    <div class="weather-icon-large">${weather.icon}</div>
+                    <div class="big-temp" id="mainTemp">${tempValue}${unitLabel}</div>
+                    <div class="unit-toggle" id="unitToggle">
+                        <span class="${currentUnits === 'C' ? 'active' : ''}" id="unitC">°C</span> / 
+                        <span class="${currentUnits === 'F' ? 'active' : ''}" id="unitF">°F</span>
+                    </div>
+                </div>
+
+                <div class="metrics-grid">
+                    <div class="metric-box">
+                        <div class="metric-label">🌡️ THERMAL SENSATIONAL</div>
+                        <div class="metric-value">${feelValue} ${unitLabel}</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-label">💧 RELATIVE HUMIDITY</div>
+                        <div class="metric-value">${current.relative_humidity_2m} %</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-label">⏲️ SURFACE PRESSURE</div>
+                        <div class="metric-value">${Math.round(current.surface_pressure)} hPa</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-label">💨 WIND VELOCITY</div>
+                        <div class="metric-value">${current.wind_speed_10m} km/h (${getWindDirection(current.wind_direction_10m)})</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-label">☀️ UV RADIATION INDEX</div>
+                        <div class="metric-value">${current.uv_index !== undefined ? current.uv_index : 'N/A'}</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-label">☁️ CLOUD MATRIX DENSITY</div>
+                        <div class="metric-value">${current.cloud_cover} %</div>
+                    </div>
+                </div>
+            `;
+
+            // Temperature Unit Toggle Event Listener
+            document.getElementById('unitToggle').addEventListener('click', () => {
+                audioEngine.init();
+                audioEngine.playBeepSound();
+                currentUnits = currentUnits === 'C' ? 'F' : 'C';
+                renderWeatherHUD(lat, lon, cityName, data);
+                renderHourlyForecast(data);
+                renderDailyForecast(data);
+            });
+        }
+
+        // Render 24-Hour Hourly Forecast
+        function renderHourlyForecast(data) {
+            const container = document.getElementById('hourlyContainer');
+            if (!data.hourly || !data.hourly.time) return;
+
+            const nowHour = new Date().getHours();
+            let html = '';
+
+            for (let i = 0; i < 24; i++) {
+                const timeStr = data.hourly.time[i];
+                const dateObj = new Date(timeStr);
+                const hourLabel = dateObj.getHours().toString().padStart(2, '0') + ':00';
+                
+                const tempC = Math.round(data.hourly.temperature_2m[i]);
+                const tempVal = currentUnits === 'C' ? tempC : Math.round(tempC * 1.8 + 32);
+                const code = data.hourly.weather_code[i];
+                const isDay = (dateObj.getHours() >= 6 && dateObj.getHours() <= 19) ? 1 : 0;
+                const weather = interpretWMOCode(code, isDay);
+
+                html += `
+                    <div class="hourly-card">
+                        <div class="hourly-time">${hourLabel}</div>
+                        <div class="hourly-icon">${weather.icon}</div>
+                        <div class="hourly-temp">${tempVal}°</div>
+                    </div>
+                `;
+            }
+            container.innerHTML = html;
+        }
+
+        // Render 7-Day Forecast
+        function renderDailyForecast(data) {
+            const container = document.getElementById('dailyContainer');
+            if (!data.daily || !data.daily.time) return;
+
+            const daysOfWeek = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+            let html = '';
+
+            for (let i = 0; i < Math.min(7, data.daily.time.length); i++) {
+                const dateObj = new Date(data.daily.time[i] + 'T00:00:00');
+                const dayName = i === 0 ? 'TODAY' : daysOfWeek[dateObj.getDay()];
+
+                const maxC = Math.round(data.daily.temperature_2m_max[i]);
+                const minC = Math.round(data.daily.temperature_2m_min[i]);
+
+                const maxVal = currentUnits === 'C' ? maxC : Math.round(maxC * 1.8 + 32);
+                const minVal = currentUnits === 'C' ? minC : Math.round(minC * 1.8 + 32);
+
+                const code = data.daily.weather_code[i];
+                const weather = interpretWMOCode(code, 1);
+
+                html += `
+                    <div class="daily-card">
+                        <div class="daily-day">${dayName}</div>
+                        <div class="daily-icon">${weather.icon}</div>
+                        <div class="daily-temps">
+                            <span class="temp-max">${maxVal}°</span>
+                            <span class="temp-min">${minVal}°</span>
+                        </div>
+                    </div>
+                `;
+            }
+            container.innerHTML = html;
+        }
+
+        /* =========================================================================
+           3. GPS & CITY SEARCH CONTROLLER
+           ========================================================================= */
+
+        const geoBtn = document.getElementById('geoBtn');
+        const searchInput = document.getElementById('searchInput');
+        const searchResults = document.getElementById('searchResults');
+
+        // GPS Triangulation Handler
+        geoBtn.addEventListener('click', () => {
+            audioEngine.init();
+            audioEngine.playBeepSound();
+
+            if (!navigator.geolocation) {
+                alert("GEOLOCATION IS NOT SUPPORTED BY YOUR TERMINAL.");
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    fetchWeatherData(pos.coords.latitude, pos.coords.longitude);
+                },
+                (err) => {
+                    console.warn(err);
+                    alert("GPS ACCESS DENIED OR TIMEOUT. FALLING BACK TO DEFAULT SECTOR.");
+                    // Fallback to Bogota / Tokyo / Madrid
+                    fetchWeatherData(4.6097, -74.0817, "BOGOTA [CO]");
+                },
+                { enableHighAccuracy: true, timeout: 10000 }
+            );
+        });
+
+        // City Search Autocomplete via Open-Meteo Geocoding API
+        let debounceTimer;
+        searchInput.addEventListener('input', (e) => {
+            clearTimeout(debounceTimer);
+            const query = e.target.value.trim();
+
+            if (query.length < 2) {
+                searchResults.style.display = 'none';
+                return;
+            }
+
+            debounceTimer = setTimeout(async () => {
+                try {
+                    const searchUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=5&language=es&format=json`;
+                    const res = await fetch(searchUrl);
+                    const data = await res.json();
+
+                    if (data.results && data.results.length > 0) {
+                        searchResults.innerHTML = '';
+                        data.results.forEach((city) => {
+                            const div = document.createElement('div');
+                            div.className = 'dropdown-item';
+                            const country = city.country_code ? `[${city.country_code.toUpperCase()}]` : '';
+                            const admin = city.admin1 ? `, ${city.admin1}` : '';
+                            div.innerHTML = `
+                                <span>📍 <strong>${city.name.toUpperCase()}</strong>${admin}</span>
+                                <span style="color: var(--neon-cyan);">${country}</span>
+                            `;
+                            div.addEventListener('click', () => {
+                                audioEngine.init();
+                                audioEngine.playBeepSound();
+                                searchInput.value = `${city.name.toUpperCase()} ${country}`;
+                                searchResults.style.display = 'none';
+                                fetchWeatherData(city.latitude, city.longitude, `${city.name.toUpperCase()} ${country}`);
+                            });
+                            searchResults.appendChild(div);
+                        });
+                        searchResults.style.display = 'block';
+                    } else {
+                        searchResults.innerHTML = `<div class="dropdown-item" style="color: var(--neon-pink);">NO CYBER SECTOR FOUND</div>`;
+                        searchResults.style.display = 'block';
+                    }
+                } catch (err) {
+                    console.error(err);
+                }
+            }, 300);
+        });
+
+        // Hide dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+                searchResults.style.display = 'none';
+            }
+        });
+
+        // INITIAL LOAD: Triangulate GPS or load initial default location
+        window.addEventListener('DOMContentLoaded', () => {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => fetchWeatherData(pos.coords.latitude, pos.coords.longitude),
+                    () => fetchWeatherData(4.6097, -74.0817, "BOGOTA [CO]") // Default fallback
+                );
+            } else {
+                fetchWeatherData(4.6097, -74.0817, "BOGOTA [CO]");
+            }
+        });
+    </script>
+</body>
+
+</html>

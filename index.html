@@ -1103,7 +1103,6 @@
         async function fetchWeatherData(lat, lon, cityName = null) {
             currentLat = lat;
             currentLon = lon;
-            if (cityName) currentCityName = cityName;
 
             const display = document.getElementById('weatherDisplay');
             const statusBadge = document.getElementById('systemStatus');
@@ -1118,6 +1117,13 @@
             `;
 
             try {
+                // If explicit cityName is provided, use it. Otherwise, dynamically resolve city name for coordinates
+                if (cityName) {
+                    currentCityName = cityName;
+                } else {
+                    currentCityName = await getCityNameFromCoords(lat, lon);
+                }
+
                 // Construct Explicit Open-Meteo URL Query with Optional Model Parameter
                 const modelQueryParam = selectedModel !== 'best_match' ? `&models=${selectedModel}` : '';
                 const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,weather_code,surface_pressure,wind_speed_10m,wind_direction_10m,cloud_cover,uv_index&hourly=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,uv_index_max&timezone=auto${modelQueryParam}`;
@@ -1127,11 +1133,6 @@
 
                 const data = await res.json();
                 currentWeatherData = data;
-
-                // Resolve City Name via Reverse Geocoding if not provided
-                if (!currentCityName || currentCityName.startsWith("SECTOR")) {
-                    currentCityName = await getCityNameFromCoords(lat, lon);
-                }
 
                 renderWeatherHUD(lat, lon, currentCityName, data);
                 renderHourlyForecast(data);
@@ -1150,18 +1151,46 @@
             }
         }
 
-        // Reverse Geocoding Helper via BigDataCloud API
+        // Reverse Geocoding Helper via BigDataCloud + OpenStreetMap Nominatim Backup
         async function getCityNameFromCoords(lat, lon) {
+            // Provider 1: BigDataCloud Reverse Geocoding API
             try {
                 const geoUrl = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=es`;
                 const res = await fetch(geoUrl);
                 const data = await res.json();
-                const city = data.city || data.locality || data.principalSubdivision || "UNKNOWN SECTOR";
+                
+                let cityName = data.city || data.locality;
+                if (!cityName && data.localityInfo && data.localityInfo.informative) {
+                    const info = data.localityInfo.informative.find(item => item.order === 4 || item.order === 3);
+                    if (info) cityName = info.name;
+                }
+                if (!cityName) cityName = data.principalSubdivision;
+
                 const country = data.countryCode || "";
-                return `${city.toUpperCase()} ${country ? '[' + country + ']' : ''}`;
+                if (cityName && cityName.trim() !== "") {
+                    return `${cityName.toUpperCase()} ${country ? '[' + country.toUpperCase() + ']' : ''}`;
+                }
             } catch (e) {
-                return `SECTOR [${lat.toFixed(2)}, ${lon.toFixed(2)}]`;
+                console.warn("BigDataCloud reverse geocode error:", e);
             }
+
+            // Provider 2: OpenStreetMap Nominatim API Backup
+            try {
+                const nomUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10&accept-language=es`;
+                const res = await fetch(nomUrl, { headers: { 'User-Agent': 'SynthMeteoApp/3.0' } });
+                const data = await res.json();
+                if (data && data.address) {
+                    const city = data.address.city || data.address.town || data.address.municipality || data.address.county || data.address.state;
+                    const country = (data.address.country_code || "").toUpperCase();
+                    if (city) {
+                        return `${city.toUpperCase()} ${country ? '[' + country + ']' : ''}`;
+                    }
+                }
+            } catch (e) {
+                console.warn("Nominatim reverse geocode error:", e);
+            }
+
+            return `SECTOR [${lat.toFixed(2)}, ${lon.toFixed(2)}]`;
         }
 
         // Render Main HUD Card with Full Traceability and Scientific Labels

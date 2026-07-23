@@ -1337,27 +1337,71 @@
             fetchWeatherData(currentLat, currentLon, currentCityName);
         });
 
-        // GPS Triangulation Handler
+        // Robust Multi-Layered Location Detection Strategy
+        async function detectUserLocation() {
+            const statusBadge = document.getElementById('systemStatus');
+            if (statusBadge) statusBadge.textContent = "TRIANGULATING POSITION...";
+
+            // Strategy 1: HTML5 High-Accuracy Geolocation (GPS / WiFi)
+            if (navigator.geolocation) {
+                try {
+                    const pos = await new Promise((resolve, reject) => {
+                        navigator.geolocation.getCurrentPosition(resolve, reject, {
+                            enableHighAccuracy: true,
+                            timeout: 7000,
+                            maximumAge: 0
+                        });
+                    });
+                    console.log("📍 Location detected via HTML5 Geolocation API:", pos.coords);
+                    await fetchWeatherData(pos.coords.latitude, pos.coords.longitude);
+                    return;
+                } catch (gpsError) {
+                    console.warn("⚠️ HTML5 Geolocation API unavailable or permission denied. Trying IP Geolocation fallback...", gpsError);
+                }
+            }
+
+            // Strategy 2: Automatic IP-based Geolocation (ipapi.co API)
+            try {
+                const ipRes = await fetch('https://ipapi.co/json/');
+                if (ipRes.ok) {
+                    const ipData = await ipRes.json();
+                    if (ipData.latitude && ipData.longitude) {
+                        const cityName = `${(ipData.city || ipData.region || "SECTOR").toUpperCase()} [${(ipData.country_code || "").toUpperCase()}]`;
+                        console.log("🌐 Location detected via IP Geolocation (ipapi.co):", cityName, ipData.latitude, ipData.longitude);
+                        await fetchWeatherData(ipData.latitude, ipData.longitude, cityName);
+                        return;
+                    }
+                }
+            } catch (ipError) {
+                console.warn("⚠️ IP Geolocation (ipapi.co) failed. Trying secondary IP provider...", ipError);
+            }
+
+            // Strategy 3: Secondary IP-based Geolocation (ip-api.com API)
+            try {
+                const ipRes2 = await fetch('https://ip-api.com/json/?lang=es');
+                if (ipRes2.ok) {
+                    const ipData2 = await ipRes2.json();
+                    if (ipData2.lat && ipData2.lon) {
+                        const cityName = `${(ipData2.city || ipData2.regionName || "SECTOR").toUpperCase()} [${(ipData2.countryCode || "").toUpperCase()}]`;
+                        console.log("🌐 Location detected via IP Geolocation (ip-api.com):", cityName, ipData2.lat, ipData2.lon);
+                        await fetchWeatherData(ipData2.lat, ipData2.lon, cityName);
+                        return;
+                    }
+                }
+            } catch (e) {
+                console.warn("⚠️ Secondary IP Geolocation failed:", e);
+            }
+
+            // Strategy 4: Fallback to default location
+            console.log("⚠️ All auto-location methods failed. Using default location.");
+            fetchWeatherData(4.6097, -74.0817, "BOGOTÁ [CO]");
+        }
+
+        // GPS Triangulation Button Handler
         geoBtn.addEventListener('click', () => {
             audioEngine.init();
             audioEngine.playBeepSound();
-
-            if (!navigator.geolocation) {
-                alert("GEOLOCATION IS NOT SUPPORTED BY YOUR TERMINAL.");
-                return;
-            }
-
-            navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                    fetchWeatherData(pos.coords.latitude, pos.coords.longitude);
-                },
-                (err) => {
-                    console.warn(err);
-                    alert("GPS ACCESS DENIED OR TIMEOUT. FALLING BACK TO DEFAULT SECTOR.");
-                    fetchWeatherData(4.6097, -74.0817, "BOGOTA [CO]");
-                },
-                { enableHighAccuracy: true, timeout: 10000 }
-            );
+            detectUserLocation();
         });
 
         // City Search Autocomplete via Open-Meteo Geocoding API
@@ -1415,16 +1459,9 @@
             }
         });
 
-        // INITIAL LOAD: Triangulate GPS or load initial default location
+        // INITIAL LOAD: Automatically trigger multi-tier location detection
         window.addEventListener('DOMContentLoaded', () => {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    (pos) => fetchWeatherData(pos.coords.latitude, pos.coords.longitude),
-                    () => fetchWeatherData(4.6097, -74.0817, "BOGOTA [CO]")
-                );
-            } else {
-                fetchWeatherData(4.6097, -74.0817, "BOGOTA [CO]");
-            }
+            detectUserLocation();
         });
     </script>
 </body>

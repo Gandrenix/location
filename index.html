@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ATMOSPHERIC SENSING PROTOCOL // RETROFUTURIST HUD</title>
+    <title>ATMOSPHERIC SENSING PROTOCOL // RETROFUTURIST RIGOROUS HUD</title>
     <!-- Google Fonts: Orbitron, Share Tech Mono, Rajdhani -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,7 +17,7 @@
             --neon-purple: #a800ff;
             --neon-yellow: #ffe600;
             --dark-bg: #090514;
-            --card-bg: rgba(18, 10, 36, 0.82);
+            --card-bg: rgba(18, 10, 36, 0.85);
             --card-border: rgba(0, 245, 255, 0.4);
             --text-glow-cyan: 0 0 10px rgba(0, 245, 255, 0.7);
             --text-glow-pink: 0 0 10px rgba(255, 0, 127, 0.7);
@@ -146,7 +146,7 @@
             position: relative;
             z-index: 10;
             width: 92%;
-            max-width: 900px;
+            max-width: 960px;
             margin-top: 20px;
             display: flex;
             flex-direction: column;
@@ -300,25 +300,30 @@
             border-radius: 3px;
         }
 
-        /* Search & Geolocation Control Panel */
+        /* Search & Controls Panel */
         .control-panel {
-            display: flex;
+            display: grid;
+            grid-template-columns: 1fr 240px auto;
             gap: 12px;
             width: 100%;
-            flex-wrap: wrap;
+        }
+
+        @media (max-width: 768px) {
+            .control-panel {
+                grid-template-columns: 1fr;
+            }
         }
 
         .search-box-wrapper {
             position: relative;
-            flex: 1;
-            min-width: 260px;
+            width: 100%;
         }
 
         .cyber-input {
             width: 100%;
             font-family: 'Share Tech Mono', monospace;
-            font-size: 1rem;
-            padding: 14px 18px;
+            font-size: 0.95rem;
+            padding: 12px 16px;
             background: rgba(10, 5, 22, 0.9);
             border: 1px solid var(--card-border);
             color: #ffffff;
@@ -331,6 +336,25 @@
         .cyber-input:focus {
             border-color: var(--neon-cyan);
             box-shadow: 0 0 15px rgba(0, 245, 255, 0.5), inset 0 0 10px rgba(0, 245, 255, 0.2);
+        }
+
+        .cyber-select {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.85rem;
+            padding: 12px 14px;
+            background: rgba(10, 5, 22, 0.95);
+            border: 1px solid var(--neon-purple);
+            color: var(--neon-yellow);
+            border-radius: 4px;
+            outline: none;
+            box-shadow: 0 0 10px rgba(168, 0, 255, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .cyber-select:hover, .cyber-select:focus {
+            border-color: var(--neon-pink);
+            box-shadow: 0 0 15px var(--neon-pink);
         }
 
         .search-results-dropdown {
@@ -365,10 +389,10 @@
 
         .btn-geo {
             font-family: 'Orbitron', sans-serif;
-            font-size: 0.95rem;
+            font-size: 0.85rem;
             font-weight: 800;
-            letter-spacing: 2px;
-            padding: 14px 28px;
+            letter-spacing: 1px;
+            padding: 12px 20px;
             background: linear-gradient(135deg, rgba(255, 0, 127, 0.2) 0%, rgba(168, 0, 255, 0.4) 100%);
             border: 2px solid var(--neon-pink);
             color: #ffffff;
@@ -398,7 +422,7 @@
         }
 
         .hud-card::before {
-            content: "TELEMETRY PROTOCOL // METEO SENSORS";
+            content: "TELEMETRY PROTOCOL // NUMERICAL METEO SENSORS";
             position: absolute;
             top: -10px;
             left: 20px;
@@ -416,7 +440,7 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             flex-wrap: wrap;
             gap: 15px;
         }
@@ -436,6 +460,19 @@
             color: var(--neon-cyan);
             letter-spacing: 1px;
             margin-top: 4px;
+        }
+
+        .model-traceability-badge {
+            background: rgba(0, 245, 255, 0.08);
+            border: 1px solid rgba(0, 245, 255, 0.3);
+            border-left: 3px solid var(--neon-yellow);
+            padding: 6px 12px;
+            border-radius: 3px;
+            font-size: 0.78rem;
+            color: var(--neon-yellow);
+            margin-top: 8px;
+            letter-spacing: 1px;
+            display: inline-block;
         }
 
         .temp-display-group {
@@ -487,7 +524,7 @@
         /* Data Grid Metrics */
         .metrics-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
             gap: 15px;
             margin-top: 25px;
             border-top: 1px solid rgba(0, 245, 255, 0.2);
@@ -513,16 +550,17 @@
 
         .metric-label {
             font-size: 0.75rem;
-            color: rgba(255, 255, 255, 0.65);
+            color: rgba(255, 255, 255, 0.75);
             letter-spacing: 1px;
             display: flex;
             align-items: center;
             gap: 6px;
+            font-weight: bold;
         }
 
         .metric-value {
             font-family: 'Orbitron', sans-serif;
-            font-size: 1.25rem;
+            font-size: 1.2rem;
             font-weight: 700;
             color: #ffffff;
             text-shadow: 0 0 8px var(--neon-cyan);
@@ -551,7 +589,7 @@
         }
 
         .hourly-card {
-            min-width: 80px;
+            min-width: 85px;
             background: rgba(12, 6, 26, 0.75);
             border: 1px solid rgba(0, 245, 255, 0.3);
             padding: 12px 8px;
@@ -563,9 +601,15 @@
             text-align: center;
         }
 
+        .hourly-card.current-hour {
+            border-color: var(--neon-yellow);
+            background: rgba(255, 230, 0, 0.12);
+            box-shadow: 0 0 10px rgba(255, 230, 0, 0.3);
+        }
+
         .hourly-time {
             font-size: 0.75rem;
-            color: rgba(255, 255, 255, 0.7);
+            color: rgba(255, 255, 255, 0.8);
         }
 
         .hourly-icon {
@@ -683,9 +727,10 @@
         .footer-note {
             text-align: center;
             font-size: 0.75rem;
-            color: rgba(255, 255, 255, 0.4);
-            letter-spacing: 2px;
+            color: rgba(255, 255, 255, 0.5);
+            letter-spacing: 1px;
             margin-top: 15px;
+            line-height: 1.6;
         }
 
         @media (max-width: 600px) {
@@ -712,7 +757,7 @@
 
         <!-- Header -->
         <header class="hud-header">
-            <h1 class="brand-title"><span>SYNTH</span>METEO // v2.6</h1>
+            <h1 class="brand-title"><span>SYNTH</span>METEO // v3.0 ACADEMIC HUD</h1>
             <div class="system-status-badge" id="systemStatus">PROTOCOL: ONLINE</div>
         </header>
 
@@ -734,12 +779,20 @@
             </div>
         </section>
 
-        <!-- Controls: Search Input + Geolocation Button -->
+        <!-- Controls: Search Input + Explicit Weather Model Selector + Geolocation Button -->
         <section class="control-panel">
             <div class="search-box-wrapper">
                 <input type="text" id="searchInput" class="cyber-input" placeholder="🔍 SEARCH CITY OR LOCATION..." autocomplete="off">
                 <div class="search-results-dropdown" id="searchResults"></div>
             </div>
+
+            <select id="modelSelect" class="cyber-select">
+                <option value="best_match">🤖 MODEL: BEST-MATCH (AUTO)</option>
+                <option value="ecmwf_ifs025">🇪🇺 ECMWF IFS (EUROPEAN CENTRE 9KM)</option>
+                <option value="gfs_seamless">🇺🇸 NOAA GFS (US GLOBAL 13KM)</option>
+                <option value="icon_seamless">🇩🇪 DWD ICON (GERMAN METEO 13KM)</option>
+            </select>
+
             <button class="btn-geo" id="geoBtn">📡 GPS TRIANGULATE</button>
         </section>
 
@@ -753,7 +806,7 @@
 
         <!-- 24-Hour Forecast Deck -->
         <section class="hud-card" style="min-height: auto;" id="hourlySection">
-            <div class="section-title">⏱️ 24-HOUR TELEMETRY FORECAST</div>
+            <div class="section-title">⏱️ 24-HOUR TELEMETRY FORECAST (FROM PRESENT HOUR)</div>
             <div class="hourly-scroll" id="hourlyContainer">
                 <div style="color: rgba(255,255,255,0.4); font-size:0.85rem;">[ AWAITING DATA STREAM ]</div>
             </div>
@@ -767,8 +820,9 @@
             </div>
         </section>
 
-        <footer class="footer-note">
-            REALTIME DATA STREAM VIA OPEN-METEO API & GEOLOCATION PROTOCOL // RETROFUTURIST HUD SYSTEM
+        <footer class="footer-note" id="footerNote">
+            FUENTE DE DATOS: OPEN-METEO API & BIGDATACLOUD REVERSE GEOCODING<br>
+            TRAZABILIDAD Y RIGOR CIENTÍFICO // MODELO METEOROLÓGICO: <span id="footerModelTag" style="color: var(--neon-cyan);">BEST-MATCH (SEAMLESS AUTO-SELECTION)</span>
         </footer>
 
     </div>
@@ -994,38 +1048,49 @@
 
 
         /* =========================================================================
-           2. METEO & GEOLOCATION DATA ENGINE (100% REAL DATA, NO HARDCODED STUB)
+           2. RIGOROUS METEO & GEOLOCATION DATA ENGINE
            ========================================================================= */
 
         let currentUnits = 'C'; // 'C' or 'F'
         let currentWeatherData = null;
+        let currentLat = 4.6097;
+        let currentLon = -74.0817;
+        let currentCityName = "BOGOTA [CO]";
+        let selectedModel = "best_match";
 
-        // Map WMO Weather Codes to Retro Cyber Weather Descriptions & Icons
+        const modelDisplayNames = {
+            "best_match": "OPEN-METEO BEST-MATCH (SEAMLESS AUTO)",
+            "ecmwf_ifs025": "ECMWF IFS 0.25° (CENTRO EUROPEO 9KM)",
+            "gfs_seamless": "NOAA GFS (EE.UU. GLOBAL 13KM)",
+            "icon_seamless": "DWD ICON (ALEMANIA METEO 13KM)"
+        };
+
+        // Map WMO Weather Codes to Standard Scientific Descriptions & Retro Icons
         function interpretWMOCode(code, isDay = 1) {
             const wmoMap = {
-                0: { desc: isDay ? "SOLAR FLARE // CLEAR SKY" : "STALKER NIGHT // CLEAR", icon: isDay ? "☀️" : "🌙" },
-                1: { desc: "FEATHER CLOUDS // MAINLY CLEAR", icon: isDay ? "🌤️" : "🌙" },
-                2: { desc: "PARTIAL CYBER COVER // SCATTERED", icon: "⛅" },
-                3: { desc: "HEAVY OVERCAST // CLOUD MATRIX", icon: "☁️" },
-                45: { desc: "SYNTH FOG // VISIBILITY LOW", icon: "🌫️" },
-                48: { desc: "ICE DEPOSIT FOG // FROZEN MIST", icon: "🌫️" },
-                51: { desc: "LIGHT DRIZZLE // ACID MIST", icon: "🌧️" },
-                53: { desc: "MODERATE DRIZZLE // ACID MIST", icon: "🌧️" },
-                55: { desc: "DENSE DRIZZLE // ACID DROP", icon: "🌧️" },
-                61: { desc: "LIGHT RAIN // NEON DOWNPOUR", icon: "🌧️" },
-                63: { desc: "MODERATE RAIN // NEON DOWNPOUR", icon: "🌧️" },
-                65: { desc: "HEAVY RAIN // HIGH VOLTAGE DRIFT", icon: "🌧️" },
-                71: { desc: "LIGHT SNOW // CRYOGENIC FALL", icon: "❄️" },
-                73: { desc: "MODERATE SNOW // CRYOGENIC FALL", icon: "❄️" },
-                75: { desc: "HEAVY SNOW // BLIZZARD PROTOCOL", icon: "❄️" },
-                80: { desc: "RAIN SHOWERS // TRANSIENT STORM", icon: "🌦️" },
-                81: { desc: "HEAVY RAIN SHOWERS // TORRENTIAL", icon: "🌧️" },
-                95: { desc: "EMP THUNDERSTORM // HIGH VOLTAGE", icon: "⚡" },
-                96: { desc: "THUNDERSTORM WITH HAIL", icon: "⛈️" },
-                99: { desc: "HEAVY HAIL STORM // EXTREME HUD WARNING", icon: "⛈️" }
+                0: { desc: isDay ? "DESPEJADO // CLEAR SKY" : "NOCHE DESPEJADA // CLEAR NIGHT", icon: isDay ? "☀️" : "🌙" },
+                1: { desc: "MAYORMENTE DESPEJADO // MAINLY CLEAR", icon: isDay ? "🌤️" : "🌙" },
+                2: { desc: "PARCIALMENTE NUBLADO // PARTLY CLOUDY", icon: "⛅" },
+                3: { desc: "NUBOSIDAD TOTAL // OVERCAST", icon: "☁️" },
+                45: { desc: "NIEBLA // FOG VISIBILITY LOW", icon: "🌫️" },
+                48: { desc: "NIEBLA CON ESCARCHA // DEPOSITING RIME FOG", icon: "🌫️" },
+                51: { desc: "LIZNA LIGERA // LIGHT DRIZZLE", icon: "🌧️" },
+                53: { desc: "LIZNA MODERADA // MODERATE DRIZZLE", icon: "🌧️" },
+                55: { desc: "LIZNA DENSA // DENSE DRIZZLE", icon: "🌧️" },
+                61: { desc: "LLUVIA LIGERA // LIGHT RAIN", icon: "🌧️" },
+                63: { desc: "LLUVIA MODERADA // MODERATE RAIN", icon: "🌧️" },
+                65: { desc: "LLUVIA INTENSA // HEAVY RAIN", icon: "🌧️" },
+                71: { desc: "NIEVE LIGERA // LIGHT SNOW", icon: "❄️" },
+                73: { desc: "NIEVE MODERADA // MODERATE SNOW", icon: "❄️" },
+                75: { desc: "NIEVE INTENSA // HEAVY SNOW", icon: "❄️" },
+                80: { desc: "CHUBASCOS LIGEROS // RAIN SHOWERS", icon: "🌦️" },
+                81: { desc: "CHUBASCOS VIOLENTOS // HEAVY RAIN SHOWERS", icon: "🌧️" },
+                95: { desc: "TORMENTA ELÉCTRICA // THUNDERSTORM", icon: "⚡" },
+                96: { desc: "TORMENTA CON GRANIZO LIGERO", icon: "⛈️" },
+                99: { desc: "TORMENTA CON GRANIZO SEVERO", icon: "⛈️" }
             };
 
-            return wmoMap[code] || { desc: "UNKNOWN ATMOSPHERIC STATE", icon: "📡" };
+            return wmoMap[code] || { desc: "ESTADO ATMOSFÉRICO NO DEFINIDO", icon: "📡" };
         }
 
         // Convert Cardinal Wind Direction
@@ -1034,8 +1099,12 @@
             return directions[Math.round(deg / 45) % 8];
         }
 
-        // Fetch Weather Data for Lat/Lon
+        // Fetch Weather Data for Lat/Lon with Explicit Model Traceability
         async function fetchWeatherData(lat, lon, cityName = null) {
+            currentLat = lat;
+            currentLon = lon;
+            if (cityName) currentCityName = cityName;
+
             const display = document.getElementById('weatherDisplay');
             const statusBadge = document.getElementById('systemStatus');
             statusBadge.textContent = "STREAMING METEO DATA...";
@@ -1044,26 +1113,27 @@
             display.innerHTML = `
                 <div class="loader-wrapper">
                     <div class="radar-pulse"></div>
-                    <div class="loader-text">TRIANGULATING ATMOSPHERIC SENSORS...</div>
+                    <div class="loader-text">CONSULTANDO MODELO ${selectedModel.toUpperCase()}...</div>
                 </div>
             `;
 
             try {
-                // High Precision Open-Meteo Query
-                const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,weather_code,surface_pressure,wind_speed_10m,wind_direction_10m,cloud_cover,uv_index&hourly=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,uv_index_max&timezone=auto`;
+                // Construct Explicit Open-Meteo URL Query with Optional Model Parameter
+                const modelQueryParam = selectedModel !== 'best_match' ? `&models=${selectedModel}` : '';
+                const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,weather_code,surface_pressure,wind_speed_10m,wind_direction_10m,cloud_cover,uv_index&hourly=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,uv_index_max&timezone=auto${modelQueryParam}`;
 
                 const res = await fetch(weatherUrl);
-                if (!res.ok) throw new Error("SENSOR SATELLITE UNREACHABLE");
+                if (!res.ok) throw new Error("SATELLITE SENSOR UNREACHABLE OR MODEL UNSUPPORTED");
 
                 const data = await res.json();
                 currentWeatherData = data;
 
                 // Resolve City Name via Reverse Geocoding if not provided
-                if (!cityName) {
-                    cityName = await getCityNameFromCoords(lat, lon);
+                if (!currentCityName || currentCityName.startsWith("SECTOR")) {
+                    currentCityName = await getCityNameFromCoords(lat, lon);
                 }
 
-                renderWeatherHUD(lat, lon, cityName, data);
+                renderWeatherHUD(lat, lon, currentCityName, data);
                 renderHourlyForecast(data);
                 renderDailyForecast(data);
 
@@ -1080,7 +1150,7 @@
             }
         }
 
-        // Reverse Geocoding Helper
+        // Reverse Geocoding Helper via BigDataCloud API
         async function getCityNameFromCoords(lat, lon) {
             try {
                 const geoUrl = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=es`;
@@ -1094,7 +1164,7 @@
             }
         }
 
-        // Render Main HUD Card
+        // Render Main HUD Card with Full Traceability and Scientific Labels
         function renderWeatherHUD(lat, lon, cityName, data) {
             const current = data.current;
             const elevation = data.elevation !== undefined ? Math.round(data.elevation) : 0;
@@ -1106,12 +1176,18 @@
             const feelValue = currentUnits === 'C' ? feelC : Math.round(feelC * 1.8 + 32);
             const unitLabel = `°${currentUnits}`;
 
+            const activeModelText = modelDisplayNames[selectedModel] || "OPEN-METEO BEST-MATCH";
+            document.getElementById('footerModelTag').textContent = activeModelText;
+
             const display = document.getElementById('weatherDisplay');
             display.innerHTML = `
                 <div class="location-header">
                     <div>
                         <div class="city-name">${cityName}</div>
-                        <div class="geo-coords">LAT: ${lat.toFixed(4)}° | LON: ${lon.toFixed(4)}° | ELEVATION: ${elevation} M</div>
+                        <div class="geo-coords">LAT: ${lat.toFixed(4)}° | LON: ${lon.toFixed(4)}° | ELEVACIÓN: ${elevation} M</div>
+                        <div class="model-traceability-badge">
+                            🌐 MODELO NUMÉRICO: <strong>${activeModelText}</strong>
+                        </div>
                     </div>
                     <div class="weather-status-tag">[ ${weather.desc} ]</div>
                 </div>
@@ -1127,27 +1203,27 @@
 
                 <div class="metrics-grid">
                     <div class="metric-box">
-                        <div class="metric-label">🌡️ THERMAL SENSATIONAL</div>
+                        <div class="metric-label">🌡️ SENSACIÓN TÉRMICA</div>
                         <div class="metric-value">${feelValue} ${unitLabel}</div>
                     </div>
                     <div class="metric-box">
-                        <div class="metric-label">💧 RELATIVE HUMIDITY</div>
+                        <div class="metric-label">💧 HUMEDAD RELATIVA</div>
                         <div class="metric-value">${current.relative_humidity_2m} %</div>
                     </div>
                     <div class="metric-box">
-                        <div class="metric-label">⏲️ SURFACE PRESSURE</div>
+                        <div class="metric-label">⏲️ PRESIÓN SUPERFICIAL</div>
                         <div class="metric-value">${Math.round(current.surface_pressure)} hPa</div>
                     </div>
                     <div class="metric-box">
-                        <div class="metric-label">💨 WIND VELOCITY</div>
+                        <div class="metric-label">💨 VELOCIDAD DEL VIENTO</div>
                         <div class="metric-value">${current.wind_speed_10m} km/h (${getWindDirection(current.wind_direction_10m)})</div>
                     </div>
                     <div class="metric-box">
-                        <div class="metric-label">☀️ UV RADIATION INDEX</div>
+                        <div class="metric-label">☀️ ÍNDICE RADIACIÓN UV</div>
                         <div class="metric-value">${current.uv_index !== undefined ? current.uv_index : 'N/A'}</div>
                     </div>
                     <div class="metric-box">
-                        <div class="metric-label">☁️ CLOUD MATRIX DENSITY</div>
+                        <div class="metric-label">☁️ NUBOSIDAD TOTAL</div>
                         <div class="metric-value">${current.cloud_cover} %</div>
                     </div>
                 </div>
@@ -1164,15 +1240,29 @@
             });
         }
 
-        // Render 24-Hour Hourly Forecast
+        // Render 24-Hour Hourly Forecast starting dynamically from the current local hour
         function renderHourlyForecast(data) {
             const container = document.getElementById('hourlyContainer');
             if (!data.hourly || !data.hourly.time) return;
 
-            const nowHour = new Date().getHours();
-            let html = '';
+            const nowMs = new Date().getTime();
+            let startIndex = 0;
+            let minDiff = Infinity;
 
-            for (let i = 0; i < 24; i++) {
+            // Find index corresponding to the current hour timestamp
+            for (let i = 0; i < data.hourly.time.length; i++) {
+                const timeMs = new Date(data.hourly.time[i]).getTime();
+                const diff = Math.abs(timeMs - nowMs);
+                if (diff < minDiff) {
+                    minDiff = diff;
+                    startIndex = i;
+                }
+            }
+
+            let html = '';
+            const endIndex = Math.min(startIndex + 24, data.hourly.time.length);
+
+            for (let i = startIndex; i < endIndex; i++) {
                 const timeStr = data.hourly.time[i];
                 const dateObj = new Date(timeStr);
                 const hourLabel = dateObj.getHours().toString().padStart(2, '0') + ':00';
@@ -1182,10 +1272,11 @@
                 const code = data.hourly.weather_code[i];
                 const isDay = (dateObj.getHours() >= 6 && dateObj.getHours() <= 19) ? 1 : 0;
                 const weather = interpretWMOCode(code, isDay);
+                const isCurrentHourClass = i === startIndex ? 'current-hour' : '';
 
                 html += `
-                    <div class="hourly-card">
-                        <div class="hourly-time">${hourLabel}</div>
+                    <div class="hourly-card ${isCurrentHourClass}">
+                        <div class="hourly-time">${i === startIndex ? 'AHORA' : hourLabel}</div>
                         <div class="hourly-icon">${weather.icon}</div>
                         <div class="hourly-temp">${tempVal}°</div>
                     </div>
@@ -1199,12 +1290,12 @@
             const container = document.getElementById('dailyContainer');
             if (!data.daily || !data.daily.time) return;
 
-            const daysOfWeek = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+            const daysOfWeek = ['DOM', 'LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB'];
             let html = '';
 
             for (let i = 0; i < Math.min(7, data.daily.time.length); i++) {
                 const dateObj = new Date(data.daily.time[i] + 'T00:00:00');
-                const dayName = i === 0 ? 'TODAY' : daysOfWeek[dateObj.getDay()];
+                const dayName = i === 0 ? 'HOY' : daysOfWeek[dateObj.getDay()];
 
                 const maxC = Math.round(data.daily.temperature_2m_max[i]);
                 const minC = Math.round(data.daily.temperature_2m_min[i]);
@@ -1230,12 +1321,21 @@
         }
 
         /* =========================================================================
-           3. GPS & CITY SEARCH CONTROLLER
+           3. GPS, MODEL SELECTOR & CITY SEARCH CONTROLLER
            ========================================================================= */
 
         const geoBtn = document.getElementById('geoBtn');
         const searchInput = document.getElementById('searchInput');
         const searchResults = document.getElementById('searchResults');
+        const modelSelect = document.getElementById('modelSelect');
+
+        // Model Switch Handler
+        modelSelect.addEventListener('change', (e) => {
+            audioEngine.init();
+            audioEngine.playBeepSound();
+            selectedModel = e.target.value;
+            fetchWeatherData(currentLat, currentLon, currentCityName);
+        });
 
         // GPS Triangulation Handler
         geoBtn.addEventListener('click', () => {
@@ -1254,7 +1354,6 @@
                 (err) => {
                     console.warn(err);
                     alert("GPS ACCESS DENIED OR TIMEOUT. FALLING BACK TO DEFAULT SECTOR.");
-                    // Fallback to Bogota / Tokyo / Madrid
                     fetchWeatherData(4.6097, -74.0817, "BOGOTA [CO]");
                 },
                 { enableHighAccuracy: true, timeout: 10000 }
@@ -1300,7 +1399,7 @@
                         });
                         searchResults.style.display = 'block';
                     } else {
-                        searchResults.innerHTML = `<div class="dropdown-item" style="color: var(--neon-pink);">NO CYBER SECTOR FOUND</div>`;
+                        searchResults.innerHTML = `<div class="dropdown-item" style="color: var(--neon-pink);">NO SECTOR FOUND</div>`;
                         searchResults.style.display = 'block';
                     }
                 } catch (err) {
@@ -1321,7 +1420,7 @@
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     (pos) => fetchWeatherData(pos.coords.latitude, pos.coords.longitude),
-                    () => fetchWeatherData(4.6097, -74.0817, "BOGOTA [CO]") // Default fallback
+                    () => fetchWeatherData(4.6097, -74.0817, "BOGOTA [CO]")
                 );
             } else {
                 fetchWeatherData(4.6097, -74.0817, "BOGOTA [CO]");
